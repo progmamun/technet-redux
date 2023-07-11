@@ -12,22 +12,34 @@ import {
 import { HiOutlineSearch } from 'react-icons/hi';
 import Cart from '../components/Cart';
 import logo from '../assets/images/technet-logo.png';
+import { useAppDispatch, useAppSelector } from '@/redux/hook';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { setUser } from '@/redux/features/user/userSlice';
 
 export default function Navbar() {
+  const { user } = useAppSelector((state) => state.user);
+
+  const dispatch = useAppDispatch();
+
+  const handleLogOut = () => {
+    console.log('logout');
+    signOut(auth).then(() => {
+      dispatch(setUser(null));
+    });
+  };
+
   return (
     <nav className="w-full h-16 fixed top backdrop-blur-lg z-10">
       <div className="h-full w-full bg-white/60">
         <div className="flex items-center justify-between w-full md:max-w-7xl h-full mx-auto ">
           <div>
-            <img className="h-8" src={logo} alt="log" />
+            <Link to="/" className="cursor-pointer">
+              <img className="h-8" src={logo} alt="log" />
+            </Link>
           </div>
           <div>
             <ul className="flex items-center">
-              <li>
-                <Button variant="link" asChild>
-                  <Link to="/">Home</Link>
-                </Button>
-              </li>
               <li>
                 <Button variant="link" asChild>
                   <Link to="/products">Products</Link>
@@ -50,7 +62,7 @@ export default function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger className="outline-none">
                     <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarImage src={`https://github.com/shadcn.png`} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
@@ -63,16 +75,30 @@ export default function Navbar() {
                     <DropdownMenuItem className="cursor-pointer">
                       Billing
                     </DropdownMenuItem>
-                    <Link to="/login">
-                      <DropdownMenuItem className="cursor-pointer">
-                        Login
-                      </DropdownMenuItem>
-                    </Link>
-                    <Link to="/signup">
-                      <DropdownMenuItem className="cursor-pointer">
-                        SignUp
-                      </DropdownMenuItem>
-                    </Link>
+                    {!user.email && (
+                      <>
+                        <Link to="/login">
+                          <DropdownMenuItem className="cursor-pointer">
+                            Login
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link to="/signup">
+                          <DropdownMenuItem className="cursor-pointer">
+                            SignUp
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+                    {user.email && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={handleLogOut}
+                          className="cursor-pointer"
+                        >
+                          LogOut
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuItem className="cursor-pointer">
                       Subscription
                     </DropdownMenuItem>
